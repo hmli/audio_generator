@@ -17,10 +17,15 @@ import (
 )
 
 type App struct {
-	Appid string
-	Key string
 	client *http.Client
 	config *config.Config
+}
+
+func NewApp(config *config.Config) *App {
+	return &App{
+		config: config,
+		client: http.DefaultClient,
+	}
 }
 
 
@@ -40,11 +45,14 @@ const (
 
 
 func (app *App) postReq(link string, text string, param map[string]string) (respBody []byte, err error){
+	fmt.Println("开始生成")
+	defer fmt.Println("生成结束")
 	curtime := strconv.FormatInt(time.Now().Unix(), 10)
 	b, _ := json.Marshal(param)
 	b64param := base64.StdEncoding.EncodeToString(b)
 	w := md5.New()
-	io.WriteString(w, app.Key+curtime+b64param)
+	io.WriteString(w, app.config.Key+curtime+b64param)
+
 	checksum := fmt.Sprintf("%x", w.Sum(nil))
 	data := url.Values{}
 	data.Set("text", text)
@@ -53,19 +61,22 @@ func (app *App) postReq(link string, text string, param map[string]string) (resp
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("X-CurTime", curtime)
-	req.Header.Set("X-Appid", app.Appid)
+	req.Header.Set("X-Appid", app.config.Appid)
 	req.Header.Set("X-Param", b64param)
 	req.Header.Set("X-CheckSum", checksum)
 	resp, err := app.client.Do(req)
 	if err != nil {
 		return respBody, err
 	}
-
 	if resp == nil || resp.Body == nil {
 		return respBody, errors.New("resp or body nil")
 	}
 	defer resp.Body.Close()
 	respBody, _ = ioutil.ReadAll(resp.Body)
+	if resp.Header.Get("Content-type") != "audio/mpeg" {
+		fmt.Println("出错：", string(respBody))
+		return
+	}
 	return
 }
 

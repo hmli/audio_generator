@@ -21,15 +21,16 @@ func TextAutoMerge(raw []byte) []string {
 	lines := TextEveryLine(raw)
 	newLines := make([]string, 0, len(lines))
 	temp := ""
-	for __, line := range lines {
+	for _, line := range lines {
 		if len(line) + len(temp) < 990 {
 			temp = temp + "\n" + line
 		} else {
 			newLines = append(newLines, temp)
 			temp = ""
 		}
-
 	}
+	return newLines
+
 }
 
 func TextEveryLine(raw []byte) []string {

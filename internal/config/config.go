@@ -2,12 +2,12 @@ package config
 
 
 type Config struct {
-	Appid string
-	Key string
-	Api Api
+	Appid string `toml:"appid"`
+	Key string `toml:"key"`
+	Api Api `toml:"api"`
 }
 
 
 type Api struct {
-	Tts string
+	Tts string `toml:"tts"`
 }
