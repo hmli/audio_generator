@@ -44,3 +44,12 @@ func TextEveryLine(raw []byte) []string {
 	}
 	return lines
 }
+
+
+func TextBySpliter(raw []byte, spliter string) []string {
+	parts := strings.Split(string(raw), spliter)
+	for i :=0; i<len(parts); i++ {
+		parts[i] = strings.TrimSpace(parts[i])
+	}
+	return parts
+}
